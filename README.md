@@ -6,12 +6,31 @@ This project is built using Node.js and Express. Basic website for splitting bil
 
 To run this project, you need to have Node.js and Postgresql installed on your system. Clone this repository and install dependencies:
 
-## Host URL: not hosted rn
+## Instructions if Noah wants to contribute
+<ul>
+    <li> clone repo </li>
+    <li> create and go to new branch </li>
+    <li> make edits on your branch </li>
+    <li> add, commit, push changed to yor branch on github </li>
+    <li> make pull request to merge changes to main </li>
+    <li> and if your local main isn't up to date do: git pull on your main branch </li>
+</ul>
 
+```
+git clone https://github.com/Chetopsa/splitR.git     // clone repo
+git checkout -b any-name                             // now you are on new branch so make changes
+git add -A                                           // adds all your new changes
+git commit -m "commit message"                       // commit changes
+git push -u origin any-name                          // pushes changes to github, now on githib make pull request
+```
+### Host URL: not hosted rn
+
+## gettign environment setup (prob use vscode)
 ```bash
-git clone https://github.com/yourusername/your-repository-name.git
 cd your-repository-name
-npm install
+git clone https://github.com/chetopsa/splitR
+honestly chat gpt how to install node js and postgresql
+then look at packahe.json to install dependencies with npm install thing --save
 ```
 ## SQL Schema 
 ```
