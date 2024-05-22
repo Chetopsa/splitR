@@ -1,5 +1,20 @@
-# SCHEMA FOR SQL
-<code>
+# My Express Project (splitr)
+
+This project is built using Node.js and Express. Basic website for splitting bills easily
+
+## Installation
+
+To run this project, you need to have Node.js and Postgresql installed on your system. Clone this repository and install dependencies:
+
+## Host URL: not hosted rn
+
+```bash
+git clone https://github.com/yourusername/your-repository-name.git
+cd your-repository-name
+npm install
+```
+## SQL Schema 
+```
 CREATE TABLE Users (
     user_id SERIAL PRIMARY KEY,
     name VARCHAR(100),
@@ -56,5 +71,4 @@ CREATE TABLE Items_Users (
     FOREIGN KEY (item_id) REFERENCES Items(item_id),
     FOREIGN KEY (user_id) REFERENCES Users(user_id)
 );
-
-</code>
+```
