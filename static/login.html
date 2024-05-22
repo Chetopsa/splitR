@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	    <link rel="stylesheet" type="text/css" href="client/css/style.css">
+	    <title>Welcome to Node.js</title>
+	    <style type="text/css">
+              .jumbotron { text-align: center; }
+            </style>
+  </head>
+
+  <body>
+    <div class="jumbotron" style="background: DarkSeaGreen !important">
+        <h1>Login Page</h1>
+        <p>Please enter your username and password. Both are case sensitive.</p>
+    </div>
+    <div class="container">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                    </div>
+                    <div class="card-body">
+                        <form id="loginForm">
+                            <div class="form-group">
+                                <label for="username">User (email):</label>
+                                <input id="username" type="text" class="form-control" name="username" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Password:</label>
+                                <input id="password" type="password" class="form-control" name="password" required>
+                            </div>
+                            <div id="invalid"></div>
+                            <button type="submit" class="btn btn-primary">Login</button>
+                            <button type="reset" class="btn btn-info">Clear</button>
+                            <button id= "myButton" type="button" class="btn" onclick="location.href ='/createAccount.html'">
+                                Create New Account
+                               </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <script>
+        const form = document.getElementById('loginForm');
+        const feedback = document.getElementById('invalid');
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+            const formData = new FormData(form);
+            const payload = {};
+            payload["username"] = formData.get("username");
+            payload["password"] = formData.get("password")
+            console.log(payload);
+            fetch('/api/loginForm', {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: {'content-Type': 'application/json'}
+                
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data.success + " " + data.message);
+                    if(data.success){
+                        console.log("success");
+                        feedback.classList.remove("alert");
+                        feedback.classList.remove("alert-danger");
+                        feedback.innerHTML = "";
+                        window.location.replace("/static/home.html");
+                    } else {
+                        console.log("fail");
+                        feedback.classList.add("alert");
+                        feedback.classList.add("alert-danger");
+                        feedback.innerHTML = "Not a Valid Username or Password.";
+                    }
+                })
+                .catch( err => console.log(err+ "hi\n"));
+        });
+        
+    </script>
+    
+  </body>
+</html>

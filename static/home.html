@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+    <title>My Schedule</title>
+    <style>
+      body {
+        padding-top: 70px; /* Space for the fixed navbar */
+      }
+      .container {
+        margin-top: 20px;
+      }
+      .stats-box {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+      .navbar-brand {
+        font-size: 3em;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+          <a class="navbar-brand" href="#">SplitR</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                  <li class="nav-item">
+                      <a class="nav-link" href="/addReceipt.html">Add Receipt</a>
+                  </li>
+                  <li class="nav-item">
+                      <button class="btn" onclick=logout()>Logout</button>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </nav>
+       <!-- Main Container -->
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Welcome to SplitR</h2>
+        <p>Here you can manage your shared expenses easily.</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Statistics</h3>
+        <div class="stats-box">
+          <h4>Who You Owe</h4>
+          <ul id="owe-list">
+            <li> you owe no one!</li>
+            <!-- Dynamic content will be loaded here -->
+          </ul>
+          <h4>Who Owes You</h4>
+          <ul id="owed-list">
+            <li> no one owes you!</li>
+            <!-- Dynamic content will be loaded here -->
+          </ul>
+        </div>
+      </div>
+    </div>
+    <!-- add Recepit Form -->
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Add Receipt</h3>
+        <div class="form-box">
+          <form id="addReceiptForm">
+            <div class="form-group">
+              <label for="receipt-name">Receipt Name:</label>
+              <input type="text" class="form-control" id="receipt-name" name="receiptName" required>
+            </div>
+            <div class="form-group">
+              <label for="total-amount">Total Amount:</label>
+              <input type="number" step="0.01" class="form-control" id="total-amount" name="totalAmount" required>
+            </div>
+            <div class="form-group">
+              <label for="date">Date:</label>
+              <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Receipt</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h3>Add Items</h3>
+        <div class="form-box">
+          <div class="form-group">
+            <label for="item-name">Item Name:</label>
+            <input type="text" class="form-control" id="item-name" name="itemName" required>
+          </div>
+          <div class="form-group">
+            <label for="item-price">Item Price:</label>
+            <input type="number" step="0.01" class="form-control" id="item-price" name="itemPrice" required>
+          </div>
+          <button type="button" class="btn btn-default" id="add-item-button">Add Item</button>
+          <div class="form-group">
+            <h4>Items List</h4>
+            <ul id="items-list" class="list-group">
+              <!-- Items will be dynamically added here -->
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+    <script>
+      $(document).ready(function() {
+        const items = [];
+  
+        // Handle adding items to the list
+        $('#add-item-button').on('click', function() {
+          const itemName = $('#item-name').val();
+          const itemPrice = $('#item-price').val();
+  
+          if (itemName && itemPrice) {
+            const item = {
+              name: itemName,
+              price: itemPrice
+            };
+  
+            items.push(item);
+            $('#items-list').append(`<li class="list-group-item">${itemName} - $${itemPrice}</li>`);
+  
+            // Clear item input fields
+            $('#item-name').val('');
+            $('#item-price').val('');
+          } else {
+            alert('Please enter both item name and price.');
+          }
+        });
+      });
+      
+      function logout() {
+        fetch("/api/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            if (res.ok) {
+              // Redirect to the login page
+              window.location.href = "/login.html";
+            } else {
+              console.log("couldn't log out");
+            }
+          })
+          .catch((error) => {
+            console.error("logout error: ", error);
+          });
+      }
+      function formTable(element) {
+        $("#days li a").removeClass("active");
+        $(element).addClass("active");
+        clearTable();
+        let day = $(element).text();
+        //TODO: Make request and fill table with events for the day
+        fetch(`/api/schedule?day=${day}`)
+          .then((response) => response.json())
+          .then((data) => {
+            fillTableWithEvents(data);
+          })
+          .catch((error) => {
+            $("#scheduleTable tbody").append(
+              '<tr><td colspan="5">No events for this day.</td></tr>'
+            );
+            console.error("Error with table FETCH", error);
+          });
+      }
+
+      function clearTable() {
+        $("#scheduleTable tbody").empty();
+      }
+      function fillTableWithEvents(res) {
+        // Iterate through the events and append them to the table
+        if (!res.success === 0) {
+          $("#scheduleTable tbody").append(
+            '<tr><td colspan="5">No events for this day.</td></tr>'
+          );
+          return;
+        }
+        const events = res.data;
+        console.log(events);
+        if (!events || events.length === 0) {
+          $("#scheduleTable tbody").append(
+            '<tr><td colspan="5">No events for this day.</td></tr>'
+          );
+          return;
+        }
+        // sort by start time
+        events.sort((a, b) => {
+          return a.event_start.localeCompare(b.event_start);
+        });
+        events.forEach(function (event) {
+          console.log(event);
+          $("#scheduleTable tbody").append(
+            `<tr id=${event.id}>
+            <td>${event.event_event}</td>
+            <td>${event.event_start} - ${event.event_end}</td>
+            <td>${event.event_location}</td>
+            <td>${event.event_phone}</td>
+            <td>${event.event_info} <a href="${event.event_url}" target="_blank">More Info</a> 
+            <br><button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteTable(${event.id})" >Delete</button>
+            <button id="edit-btn" type="button" class="btn btn-primary" onclick="editTable(${event.id})">Edit</button>;
+            </td>
+          </tr>`
+          );
+        });
+      }
+
+      // final editions
+      function editTable(){
+
+      }
+      function deletetable(id){
+       if(!window.confirm("Are you sure? Click confirm to delete.")) {return;}
+        fetch(`/api/deleteEvent?id=${id}`)
+        .then(response => {
+          // Remove the row from the DOM if the response is a success
+          if (response.status == 200) {
+            $(`#${row_id}`).remove();
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

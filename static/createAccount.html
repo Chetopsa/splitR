@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    	<meta charset="utf-8">
+    	<meta name="viewport" content="width=device-width, initial-scale=1">
+	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	    <link rel="stylesheet" type="text/css" href="client/css/style.css">
+	    <title>Welcome to Node.js</title>
+	    <style type="text/css">
+              .jumbotron { text-align: center; }
+            </style>
+  </head>
+
+  <body>
+    <div class="jumbotron" style="background: DarkSeaGreen !important">
+        <h1>Create Account Page</h1>
+        <p>Please enter your email, name and password. Passwords are case sensitive and encrypted.</p>
+    </div>
+    <div class="container">
+            <div class="row">
+                <div class="card">
+                    <div class="card-header">
+                    </div>
+                    <div class="card-body">
+                        <form id="createAccForm">
+                            <div class="form-group">
+                                <label for="username">User (email):</label>
+                                <input id="username" type="email" class="form-control" name="username" required>
+                                <label for="username">Name:</label>
+                                <input id="name" type="text" class="form-control" name="name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="password1">Password:</label>
+                                <input id="password1" type="password" class="form-control" name="password1" required>
+                                <label for="password2">Confirm Password:</label>
+                                <input id="password2" type="password" class="form-control" name="password2" required>
+                            </div>
+                            <div id="invalid"></div>
+                            <button type="submit" class="btn btn-primary">Create Account</button>
+                            <button type="reset" class="btn btn-info">Clear</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <script>
+        const form = document.getElementById('createAccForm');
+        const feedback = document.getElementById('invalid');
+        form.addEventListener('submit', function(e){
+            e.preventDefault();
+
+            const formData = new FormData(form);
+            if (formData.get("password1") != formData.get("password2")) {
+                feedback.classList.add("alert");
+                feedback.classList.add("alert-danger");
+                feedback.innerHTML = "Passwords do not match";
+                return;
+            } 
+            const payload = {};
+            payload["email"] = formData.get("username").toLowerCase();
+            payload["name"] = formData.get("name");
+            payload["password"] = formData.get("password1");
+            console.log(payload);
+            fetch('/api/accountForm', {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: {'content-Type': 'application/json'}
+                
+                })
+                .then(res => res.json())
+                .then(data => {
+                    console.log(data.success + " " + data.message);
+                    if(data.success){
+                        console.log("success");
+                        feedback.classList.remove("alert");
+                        feedback.classList.remove("alert-danger");
+                        feedback.innerHTML = "";
+                        window.location.replace("/static/login.html");
+                    } else {
+                        console.log("fail");
+                        feedback.classList.add("alert");
+                        feedback.classList.add("alert-danger");
+                        feedback.innerHTML = "Not a Valid Username or Password.";
+                    }
+                })
+                .catch( err => console.log(err+ "hi\n"));
+        });
+        
+    </script>
+    
+  </body>
+</html>
