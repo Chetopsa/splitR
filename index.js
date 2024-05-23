@@ -93,7 +93,7 @@ app.post('/api/logout', (req, res) => {
     }
   });
 });
-//function to handle login form post request
+// function to handle login form post request
 app.post('/api/loginForm', async (req, res) => {
     
       const { username, password } = req.body;
@@ -136,34 +136,32 @@ app.post('/api/loginForm', async (req, res) => {
       }
     
 });
-app.post('/api/receiptEntry', (req, res) => {
-//   const dbCon = mysql.createConnection({
-//     host: "cse-mysql-classes-01.cse.umn.edu",
-//     user: "C4131S24DU81",               
-//     password: "6611",                  
-//     database: "C4131S24DU81",
-//   });
-//   let event_info = req.body;
-//   console.log(event_info);
-//   dbCon.connect(function (err) {
-//     if (err) {
-//       return res.status(500).json({ success: false, message: "Database error" });
-//     }
-//     var sql = 
-//     `INSERT INTO tbl_events (event_day, event_event, event_start, event_end, event_location, event_phone, event_info, event_url)`
-//     + ` VALUES ('${event_info.day}', '${event_info.event}', '${event_info.start}', '${event_info.end}', '${event_info.location}', '${event_info.phone}', '${event_info.info}', '${event_info.url}')`
-//     ;
-//     dbCon.query(sql, (error, results) => {
-//       dbCon.end(); // after qury close connection
-//       if (error) {
-//         console.error('Database error', error);
-//         return res.status(500).json({ success: false, message: "Database error" });
-//       } else {
-//         return res.status(200).json({success: true, message: "succesfully inserted"})
-//       }
-      
-//     });
-//   });
+// Payload is [receiptname (str), totalAmount (float), date (Date), Items = [Item [(name (str), price (float), index(int))],...] (Array) ]
+app.post('/api/receiptEntry', async (req, res) => {
+  let user = req.session.user_id;
+  let data = req.body;
+  client = await pool.connect();
+
+  // console.log(user);
+  // enter receipt entry
+  // TODO: need to implement group functionality
+  try {
+    const res1 = await client.query('INSERT INTO Receipts (date, name, total_Amount, created_by) VALUES ($1, $2, $3, $4) RETURNING receipt_id',
+      [data.date, data.receiptName, data.totalAmount, user]
+    );
+    let receipt_id = res1.rows[0].receipt_id;
+    data.items.forEach(async (item) => {
+      await client.query('INSERT INTO Items (receipt_id, item_name, item_price) VALUES ($1, $2, $3)',
+      [receipt_id, item.name, item.price]
+    );
+    });
+    await client.query('COMMIT');
+  } catch {
+    await client.query('ROLLBACK'); // rollback if any error occurs
+    console.log("enterign receipt did not work")
+  } finally {
+    client.release();
+  }
 });
 
 
@@ -201,7 +199,12 @@ app.get('/addReceipt', function(req, res) {
   }
 });
 // middle ware to serve static files
-app.use('/static', express.static(__dirname + '/static'));
+app.get('/static/*', function(req, res) {
+  if (req.session && req.session.isLoggedIn) {
+    app.use('/static', express.static(__dirname + '/static'));
+  }
+});
+
 // function to return the 404 message and error to client
 app.get('*', function(req, res) {
   // add details
