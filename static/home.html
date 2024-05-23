@@ -40,6 +40,18 @@
       .navbar-brand {
         font-size: 3em;
       }
+    .list-group-item [id^="delete-btn"] {
+      display: none;
+    }
+    .list-group-item:hover [id^="delete-btn"] {
+      display: inline-block;
+    }
+    .btn-xs {
+      font-size: 0.75rem;
+      line-height: 1.5;
+      border-radius: 0.2rem;
+      margin-left: 60%;
+  }
     </style>
   </head>
   <body>
@@ -114,6 +126,7 @@
           </form>
         </div>
       </div>
+      <!-- add Item Form -->
       <div class="col-md-6">
         <h3>Add Items</h3>
         <div class="form-box">
@@ -138,9 +151,10 @@
   </div>
   
     <script>
+      let items = [];
+      let total_amount = 0.0;
+      let item_idx = 0
       $(document).ready(function() {
-        const items = [];
-  
         // Handle adding items to the list
         $('#add-item-button').on('click', function() {
           const itemName = $('#item-name').val();
@@ -149,12 +163,19 @@
           if (itemName && itemPrice) {
             const item = {
               name: itemName,
-              price: itemPrice
+              price: itemPrice,
+              index: item_idx
             };
-  
+           
+            total_amount += parseFloat(itemPrice);
+            $('#total-amount').val(total_amount);
             items.push(item);
-            $('#items-list').append(`<li class="list-group-item">${itemName} - $${itemPrice}</li>`);
-  
+            $('#items-list').append(`<li id="item${item_idx}" data-value="${itemPrice}" class="list-group-item">${itemName} - $${itemPrice}
+              <button id="delete-btn${item_idx}" type="button" class="btn btn-danger btn-xs" onclick="deleteItem(${item_idx})">
+                Delete
+              </button>
+            </li>`);
+            item_idx += 1;
             // Clear item input fields
             $('#item-name').val('');
             $('#item-price').val('');
@@ -183,79 +204,44 @@
             console.error("logout error: ", error);
           });
       }
-      function formTable(element) {
-        $("#days li a").removeClass("active");
-        $(element).addClass("active");
-        clearTable();
-        let day = $(element).text();
-        //TODO: Make request and fill table with events for the day
-        fetch(`/api/schedule?day=${day}`)
-          .then((response) => response.json())
+      function deleteItem(id){
+        // delete items from DOM and update total_amount
+        total_amount -=  parseFloat($('#item'+id).data().value);
+        $('#item'+id).remove();
+        $('#total-amount').val(total_amount);
+      }
+      const receiptForm =  document.getElementById('addReceiptForm');
+      receiptForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(receiptForm);
+        payload = {}
+        console.log([...formData]);
+        formData.forEach((value, key) => {
+          payload[key] = value;
+        });
+        payload['items'] = items
+        console.log(payload);
+        fetch('/api/receiptEntry', {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload)
+        })
+          .then((res) => {
+            if (res.ok) {
+              return res.json();
+            } else {
+              throw new Error('newtork response was not ok');
+            }
+          })
           .then((data) => {
-            fillTableWithEvents(data);
+            console.log("Recepit submission successful: ", data);
           })
           .catch((error) => {
-            $("#scheduleTable tbody").append(
-              '<tr><td colspan="5">No events for this day.</td></tr>'
-            );
-            console.error("Error with table FETCH", error);
-          });
-      }
-
-      function clearTable() {
-        $("#scheduleTable tbody").empty();
-      }
-      function fillTableWithEvents(res) {
-        // Iterate through the events and append them to the table
-        if (!res.success === 0) {
-          $("#scheduleTable tbody").append(
-            '<tr><td colspan="5">No events for this day.</td></tr>'
-          );
-          return;
-        }
-        const events = res.data;
-        console.log(events);
-        if (!events || events.length === 0) {
-          $("#scheduleTable tbody").append(
-            '<tr><td colspan="5">No events for this day.</td></tr>'
-          );
-          return;
-        }
-        // sort by start time
-        events.sort((a, b) => {
-          return a.event_start.localeCompare(b.event_start);
-        });
-        events.forEach(function (event) {
-          console.log(event);
-          $("#scheduleTable tbody").append(
-            `<tr id=${event.id}>
-            <td>${event.event_event}</td>
-            <td>${event.event_start} - ${event.event_end}</td>
-            <td>${event.event_location}</td>
-            <td>${event.event_phone}</td>
-            <td>${event.event_info} <a href="${event.event_url}" target="_blank">More Info</a> 
-            <br><button id="delete-btn" type="button" class="btn btn-danger" onclick="deleteTable(${event.id})" >Delete</button>
-            <button id="edit-btn" type="button" class="btn btn-primary" onclick="editTable(${event.id})">Edit</button>;
-            </td>
-          </tr>`
-          );
-        });
-      }
-
-      // final editions
-      function editTable(){
-
-      }
-      function deletetable(id){
-       if(!window.confirm("Are you sure? Click confirm to delete.")) {return;}
-        fetch(`/api/deleteEvent?id=${id}`)
-        .then(response => {
-          // Remove the row from the DOM if the response is a success
-          if (response.status == 200) {
-            $(`#${row_id}`).remove();
-          }
-        });
-      }
+            console.log("receipt submission error");
+          })
+      });
     </script>
   </body>
 </html>
