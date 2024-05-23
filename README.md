@@ -57,6 +57,7 @@ CREATE TABLE Users_Groups (
 
 CREATE TABLE Receipts (
     receipt_id SERIAL PRIMARY KEY,
+    receipt_name VARCHAR(100),
     date DATE,
     total_amount DECIMAL(10, 2),
     created_by INT,
