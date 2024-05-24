@@ -43,6 +43,7 @@ CREATE TABLE Users (
 CREATE TABLE Groups (
     group_id SERIAL PRIMARY KEY,
     group_name VARCHAR(100),
+    group_code VARCHAR(100),
     created_by INT,
     FOREIGN KEY (created_by) REFERENCES Users(user_id)
 );
