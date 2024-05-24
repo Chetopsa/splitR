@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+    <title>My Schedule</title>
+    <style>
+      body {
+        padding-top: 70px; /* Space for the fixed navbar */
+      }
+      .container {
+        margin-top: 20px;
+      }
+      .navbar-brand {
+        font-size: 3em;
+      }
+      .groups-box {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+          <a class="navbar-brand" href="/home.html">SplitR</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                  <!-- <li class="nav-item">
+                      <a class="nav-link" href="/addReceipt.html">Add Receipt</a>
+                  </li> -->
+                  <li class="nav-item">
+                    <a class="nav-link" href="/manageGroups.html">Manage Groups</a>
+                </li>
+                  <li class="nav-item">
+                      <button class="btn" onclick=logout()>Logout</button>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </nav>
+       <!-- Main Container -->
+  <div class="container">
+    <div class="row">
+      <div class="col-md-12">
+        <h2>Manage Groups</h2>
+        <p>Here you can create new groups, and join existing ones</p>
+      </div>
+    </div>
+    
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Your groups</h3>
+        <div class="groups-box">
+          <!-- populate group names here, add link to receipt page -->
+        </div>
+      </div>
+      <div class="col-md-6">
+        <h3>Select Current Group</h3>
+        <div class="groups-box">
+          <!-- populate group names here, add button to select as current group -->
+        </div>
+      </div>
+    </div>
+    <!-- Create Group Form -->
+    <div class="row">
+      <div class="col-md-6">
+        <br>
+        <h3>Create Group</h3>
+        <div class="form-box">
+          <form id="createGroupForm">
+            <div class="form-group">
+              <label for="groupName">Group Name:</label>
+              <input type="text" class="form-control" id="group-name-1" name="groupName" pattern="[a-zA-Z0-9\s]+" required>
+            </div>
+            <div class="form-group">
+              <label for="groupCode">Group Code: </label>
+              <input type="text" class="form-control" id="group-code-1" name="groupCode" pattern="[a-zA-Z0-9\s]+" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Create Group</button>
+          </form>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <br>
+        <h3>Join Group</h3>
+        <div class="form-box">
+          <form id="joinGroupForm">
+            <div class="form-group">
+              <label for="groupName">Group Name:</label>
+              <input type="text" class="form-control" id="group-name-2" name="groupName" pattern="[a-zA-Z0-9\s]+" required>
+            </div>
+            <div class="form-group">
+              <label for="groupCode">Group Code: </label>
+              <input type="text" class="form-control" id="group-code-2" name="groupCode" pattern="[a-zA-Z0-9\s]+" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Join Group</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <script>
+      let items = [];
+      let total_amount = 0.0;
+      let item_idx = 0
+      $(document).ready(function() {
+        // Handle populating fields
+        
+      });
+
+      // logout method
+      function logout() {
+        fetch("/api/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+        })
+          .then((res) => {
+            if (res.ok) {
+              // Redirect to the login page
+              window.location.href = "/login.html";
+            } else {
+              console.log("couldn't log out");
+            }
+          })
+          .catch((error) => {
+            console.error("logout error: ", error);
+          });
+      }
+      const createGroupForm =  document.getElementById('createGroupForm');
+      createGroupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(createGroupForm);
+        payload = {}
+        console.log([...formData]);
+        formData.forEach((value, key) => {
+          payload[key] = value;
+        });
+        console.log(payload);
+        fetch('/api/createGroup', {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload)
+        })
+          .then((res) => {
+            if (res.ok) {
+              return res.text();
+            } else {
+              throw new Error('newtork response was not ok');
+            }
+          })
+          .then((data) => {
+            console.log("new group submission successful: ", data);
+          })
+          .catch((error) => {
+            console.log("new Group submission error\n" + error);
+          })
+      });
+    </script>
+  </body>
+</html>
