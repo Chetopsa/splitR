@@ -6,7 +6,6 @@
 	    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 	    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 	    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	    <link rel="stylesheet" type="text/css" href="client/css/style.css">
 	    <title>Welcome to Node.js</title>
 	    <style type="text/css">
               .jumbotron { text-align: center; }
@@ -14,7 +13,7 @@
   </head>
 
   <body>
-    <div class="jumbotron" style="background: DarkSeaGreen !important">
+    <div class="jumbotron" style="background: rgb(155, 199, 201) !important">
         <h1>Login Page</h1>
         <p>Please enter your username and password. Both are case sensitive.</p>
     </div>
@@ -76,7 +75,7 @@
                         feedback.innerHTML = "Not a Valid Username or Password.";
                     }
                 })
-                .catch( err => console.log(err+ "hi\n"));
+                .catch( err => console.log(err + "\n"));
         });
         
     </script>

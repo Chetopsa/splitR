@@ -58,15 +58,18 @@
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-          <a class="navbar-brand" href="#">SplitR</a>
+          <a class="navbar-brand" href="/home.html">SplitR</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
               <ul class="navbar-nav">
-                  <li class="nav-item">
+                  <!-- <li class="nav-item">
                       <a class="nav-link" href="/addReceipt.html">Add Receipt</a>
-                  </li>
+                  </li> -->
+                  <li class="nav-item">
+                    <a class="nav-link" href="/manageGroups.html">Manage Group</a>
+                </li>
                   <li class="nav-item">
                       <button class="btn" onclick=logout()>Logout</button>
                   </li>
@@ -232,6 +235,7 @@
             if (res.ok) {
               return res.json();
             } else {
+              alert("You must be part of a group to add a receipt!");
               throw new Error('newtork response was not ok');
             }
           })
