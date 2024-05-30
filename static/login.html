@@ -35,7 +35,7 @@
                             <div id="invalid"></div>
                             <button type="submit" class="btn btn-primary">Login</button>
                             <button type="reset" class="btn btn-info">Clear</button>
-                            <button id= "myButton" type="button" class="btn" onclick="location.href ='/createAccount.html'">
+                            <button id= "myButton" type="button" class="btn" onclick="location.href ='/createAccount'">
                                 Create New Account
                                </button>
                         </form>
@@ -67,7 +67,7 @@
                         feedback.classList.remove("alert");
                         feedback.classList.remove("alert-danger");
                         feedback.innerHTML = "";
-                        window.location.replace("/home.html");
+                        window.location.replace("/home");
                     } else {
                         console.log("fail");
                         feedback.classList.add("alert");

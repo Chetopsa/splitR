@@ -40,27 +40,34 @@
         border-radius: 5px;
         border: 1px solid #ddd;
       }
+      .active-group {
+        background-color: lightblue;
+      }
     </style>
   </head>
   <body>
     <!-- Navigation Bar -->
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
       <div class="container-fluid">
-          <a class="navbar-brand" href="/home.html">SplitR</a>
+          <a class="navbar-brand" href="/home">SplitR</a>
           <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
-              <ul class="navbar-nav">
+            <ul class="navbar-nav">
                   <!-- <li class="nav-item">
-                      <a class="nav-link" href="/addReceipt.html">Add Receipt</a>
+                      <a class="nav-link" href="/addReceipt">Add Receipt</a>
                   </li> -->
-                  <li class="nav-item">
-                    <a class="nav-link" href="/manageGroups.html">Manage Groups</a>
+                <li class="nav-item">
+                    <a class="nav-link" href="/manageGroups">Manage Groups</a>
+                    </li>
+                  
+                <li class="nav-item">
+                    <a class="nav-link" href="/viewReceipts">View Receipts</a>
                 </li>
-                  <li class="nav-item">
-                      <button class="btn" onclick=logout()>Logout</button>
-                  </li>
+                <li class="nav-item">
+                    <button class="btn" onclick=logout()>Logout</button>
+                </li>
               </ul>
           </div>
       </div>
@@ -76,15 +83,11 @@
     
     <div class="row">
       <div class="col-md-6">
-        <h3>Your groups</h3>
+        <h3>Your groups (click current)</h3>
         <div class="groups-box">
-          <!-- populate group names here, add link to receipt page -->
-        </div>
-      </div>
-      <div class="col-md-6">
-        <h3>Select Current Group</h3>
-        <div class="groups-box">
-          <!-- populate group names here, add button to select as current group -->
+            <ul id="yourGroups" class="list-group">
+                <!-- populate group names here, add link to receipt page -->
+            </ul>
         </div>
       </div>
     </div>
@@ -103,10 +106,12 @@
               <label for="groupCode">Group Code: </label>
               <input type="text" class="form-control" id="group-code-1" name="groupCode" pattern="[a-zA-Z0-9\s]+" required>
             </div>
+            <div id="create-invalid" class ="alert-danger"></div>
             <button type="submit" class="btn btn-primary">Create Group</button>
           </form>
         </div>
       </div>
+      <!-- Join Group Form -->
       <div class="col-md-6">
         <br>
         <h3>Join Group</h3>
@@ -120,22 +125,73 @@
               <label for="groupCode">Group Code: </label>
               <input type="text" class="form-control" id="group-code-2" name="groupCode" pattern="[a-zA-Z0-9\s]+" required>
             </div>
+            <div id="join-invalid" class ="alert-danger"></div>
             <button type="submit" class="btn btn-primary">Join Group</button>
           </form>
         </div>
       </div>
     </div>
   </div>
+  <br>
+  <br>
 
     <script>
-      let items = [];
-      let total_amount = 0.0;
-      let item_idx = 0
       $(document).ready(function() {
         // Handle populating fields
-        
+        // Populate your groups
+        const yourGroups = $('#yourGroups');
+        fetch("/api/populateGroups", {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => {
+            if (res.ok) {
+                return res.json();
+            } else {
+                console.log("not Successful");
+                throw new Error("request failed");
+            }
+        }) 
+        .then(data => {
+            console.log(data);
+            data.data.forEach( (element) => {
+                yourGroups.append(`<li id="groups-${element.group_id}" onclick="selectGroup(this.id)" class="list-group-item" 
+                    data-group_id="${element.group_id}"> ${element.group_name}</li>`);
+            });
+            console.log(data.current);
+            $(`#groups-${data.current}`).addClass('active-group');
+        })
+        .catch(error => console.log(error));
       });
-
+      function selectGroup(id) {
+        // front end change highlite
+        $('.active-group').removeClass('active-group');
+        $(`#${id}`).addClass('active-group');
+        // change session.group_id
+        let group_id = $(`#${id}`).data('group_id');
+        payload = {'group_id': group_id};
+        fetch("/api/changeGroup", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(payload)
+        })
+        .then((res) => {
+            if (res.ok) {
+                console.log("successfuly cjhanged current group_id");
+            }
+            else {
+                throw Error("Error when changing current group_id")
+            }
+        })
+        .catch( (error) => {
+            console.log(error);
+        })
+        
+      }
       // logout method
       function logout() {
         fetch("/api/logout", {
@@ -147,7 +203,7 @@
           .then((res) => {
             if (res.ok) {
               // Redirect to the login page
-              window.location.href = "/login.html";
+              window.location.href = "/login";
             } else {
               console.log("couldn't log out");
             }
@@ -175,16 +231,64 @@
         })
           .then((res) => {
             if (res.ok) {
-              return res.text();
+                return res.text();
             } else {
-              throw new Error('newtork response was not ok');
+                // have front end warning
+                let warning = $('#create-invalid');
+                warning.addClass("alert");
+                warning.html("could't create group, maybe group name and code already exist");
+                setTimeout(function(){
+                    warning.removeClass("alert");
+                    warning.html("");
+                },5000);
+                throw new Error('newtork response was not ok');
             }
           })
           .then((data) => {
             console.log("new group submission successful: ", data);
+            location.reload(); 
           })
           .catch((error) => {
             console.log("new Group submission error\n" + error);
+          })
+      });
+      const joinGroupForm = document.getElementById('joinGroupForm');
+      joinGroupForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(joinGroupForm);
+        payload = {}
+        console.log([...formData]);
+        formData.forEach((value, key) => {
+          payload[key] = value;
+        });
+        console.log(payload);
+        fetch('/api/joinGroup', {
+          method: "POST",
+          headers: {
+          "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload)
+        })
+          .then((res) => {
+            if (res.ok) {
+              return res.text();
+            } else {
+                let warning = $('#join-invalid');
+                warning.addClass("alert");
+                warning.html("Could't join group, maybe already in group");
+                setTimeout(function(){
+                    warning.removeClass("alert");
+                    warning.html("");
+                },5000);
+                throw new Error('could not join group');
+            }
+          })
+          .then((data) => {
+            console.log("successfully joined group: ", data);
+            location.reload(); 
+          })
+          .catch((error) => {
+            console.log("Join group error: " + error);
           })
       });
     </script>

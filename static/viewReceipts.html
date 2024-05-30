@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+    <title>My Schedule</title>
+    <style>
+        body {
+            padding-top: 70px; /* Space for the fixed navbar */
+            background-color: #f0f2f5;
+        }
+        .container {
+            margin-top: 20px;
+            margin-inline: auto;
+        }
+        .reciept-list {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        .navbar-brand {
+            font-size: 3em;
+        }
+        .list-group-item [id^="delete-btn"] {
+            display: none;
+        }
+        .list-group-item:hover [id^="delete-btn"] {
+            display: inline-block;
+        }
+        .btn-xs {
+            font-size: 0.75rem;
+            line-height: 1.5;
+            border-radius: 0.2rem;
+            margin-left: auto;
+        }
+        .form-group {
+            margin-top: 20px;
+        }
+        .active-group {
+            background-color: lightblue;
+        }
+        h2 {
+            color: #333;
+            margin-bottom: 20px;
+          }
+          h4 {
+            color: #555;
+            margin-top: 0;
+          }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+          <a class="navbar-brand" href="/home">SplitR</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                  <!-- <li class="nav-item">
+                      <a class="nav-link" href="/addReceipt.html">Add Receipt</a>
+                  </li> -->
+                  <li class="nav-item">
+                    <a class="nav-link" href="/manageGroups">Manage Groups</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/viewReceipts">View Receipts</a>
+                  </li>
+                  <li class="nav-item">
+                      <button class="btn" onclick=logout()>Logout</button>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </nav>
+       <!-- Main Container -->
+    <div class="container">
+        <div class="row">
+            <h2>View Receipts for Group: <span id="groupName" style="color: blue"> <--></span></h2> 
+        </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <ul id="receiptList" class="list-group reciept-list">
+                <!-- Dynamic content will be loaded here -->
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <div class="form-group">
+                <h4>Items List</h4>
+                <ul id="items-list" class="list-group">
+                <!-- Items will be dynamically added here -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <script>
+        function selectGroup(id) {
+            // front end change highlite
+            console.log(`${id}`);
+            $('.active-group').removeClass('active-group');
+            $(`#${id}`).addClass('active-group');
+        }
+        function showItemList(items, id) {
+            selectGroup(id);
+            const itemsList = $('#items-list');
+            let jsonItems = items;
+            console.log(jsonItems);
+            console.log(items);
+            itemsList.empty();
+            items.forEach(item => {
+                itemsList.append(`
+                    <li class="list-group-item">
+                        ${item.item_name}: $${item.item_price}
+                    </li>
+                `);
+            });
+        }
+        function logout() {
+            fetch("/api/logout", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+            })
+              .then((res) => {
+                if (res.ok) {
+                  // Redirect to the login page
+                  window.location.href = "/login";
+                } else {
+                  console.log("couldn't log out");
+                }
+              })
+              .catch((error) => {
+                console.error("logout error: ", error);
+              });
+          }
+        $(document).ready(function() {
+            fetch('/api/populateReceipts', {
+                method:'GET',
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            })
+            .then ((res) => {
+                if (res.ok) {
+                    return res.json();
+                }
+                else {
+                    throw Error("error populating receipts page");
+                }
+            })
+            .then ((data) => {
+                let receipts = data.receipt_list;
+                const list = $(`#receiptList`);
+                console.log(data);
+                if (receipts.length === 0) {
+                    window.alert("No receipts in current group");
+                } else {
+                    $(`#groupName`).html(data.group_name);
+                    receipts.forEach((receiptData) => {
+                        const receipt = receiptData.receipt;
+                        const items = receiptData.items;
+                        const receiptItem = $(`
+                        <li id="receipt-${receiptData.id}" class="list-group-item" onclick='showItemList(${JSON.stringify(items)}, this.id)'>
+                            Receipt: ${receipt}
+                        </li>
+                        `);
+                        list.append(receiptItem);
+                    });
+                }
+                
+            })
+            .catch ((error) => {
+                console.log(error);
+            });
+        });
+    </script>
+  </body>
+</html>
