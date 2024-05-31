@@ -1,182 +1,229 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
-          integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
-          crossorigin="anonymous">
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
+      integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO"
+      crossorigin="anonymous"
+    />
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-            integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-            crossorigin="anonymous"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-            integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
-            crossorigin="anonymous"></script>
-    <title>Add Event</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+      integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+      integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+      crossorigin="anonymous"
+    ></script>
+    <title>My Schedule</title>
+    <style>
+      body {
+        padding-top: 70px; /* Space for the fixed navbar */
+      }
+      .container {
+        margin-top: 20px;
+      }
+      .stats-box {
+        background-color: #f9f9f9;
+        padding: 20px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+      }
+      .navbar-brand {
+        font-size: 3em;
+      }
+    .list-group-item [id^="delete-btn"] {
+      display: none;
+    }
+    .list-group-item:hover [id^="delete-btn"] {
+      display: inline-block;
+    }
+    .btn-xs {
+      font-size: 0.75rem;
+      line-height: 1.5;
+      border-radius: 0.2rem;
+      margin-inline: auto;
+  }
+    </style>
   </head>
   <body>
-    <nav class="navbar navbar-expanded navbar-light bg-light">
-      <ul class="nav nav-pills">
-        <li class="nav-item">
-          <a class="nav-link" href="welcome.html">Home</a>
-        </li>
-        <li class="nav-item">
-          <a class="nav-link" href="schedule.html">Schedule</a>
-        </li>
-        <li class="nav-item active">
-          <a class="nav-link active" href="addEvent.html">Add
-            Event</a>
-        </li>
-        <li class="nav-item">
-          <a id="logout" class="nav-link" href="#" type="button" onclick="logout()">Log Out</a>
-        </li>
-      </ul>
-    </nav><br>
-    <br>
-    <div class="container mb-5">
-      <form name="addEvent" id="addEvent">
-        <div class="form-group">
-          <label for="nameInput">Event</label>
-          <input type="text" id="nameInput" class="form-control" name="event"
-                 pattern="[a-zA-Z0-9\s]+" title="Event must be alphanumeric"
-                 required="">
-          <small id="eventHelp" class="form-text text-muted">
-            Event name must be alphanumeric</small>
+    <!-- Navigation Bar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+      <div class="container-fluid">
+          <a class="navbar-brand" href="/home">SplitR</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarNav">
+              <ul class="navbar-nav">
+                  <li class="nav-item">
+                      <a class="nav-link" href="/addReceipt">Add Receipt</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/manageGroups">Manage Groups</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/viewReceipts">View Receipts</a>
+                  </li>
+                  <li class="nav-item">
+                      <button class="btn" onclick=logout()>Logout</button>
+                  </li>
+              </ul>
+          </div>
+      </div>
+  </nav>
+       <!-- Main Container -->
+  <div class="container">
+    <!-- add Recepit Form -->
+    <div class="row">
+      <div class="col-md-6">
+        <h3>Add Receipt</h3>
+        <div class="form-box">
+          <form id="addReceiptForm">
+            <div class="form-group">
+              <label for="receipt-name">Receipt Name:</label>
+              <input type="text" class="form-control" id="receipt-name" name="receiptName" required>
+            </div>
+            <div class="form-group">
+              <label for="total-amount">Total Amount:</label>
+              <input type="number" step="0.01" class="form-control" id="total-amount" name="totalAmount" required>
+            </div>
+            <div class="form-group">
+              <label for="date">Date:</label>
+              <input type="date" class="form-control" id="date" name="date" required>
+            </div>
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Receipt</button>
+          </form>
         </div>
-        <div class="form-group">
-          <label for="dayInput">Day of Week</label>
-          <select id="dayInput" class="form-control" name="day">
-            <option>
-              Sunday
-            </option>
-            <option>
-              Monday
-            </option>
-            <option>
-              Tuesday
-            </option>
-            <option>
-              Wednesday
-            </option>
-            <option>
-              Thursday
-            </option>
-            <option>
-              Friday
-            </option>
-            <option>
-              Saturday
-            </option>
-          </select>
+      </div>
+      <!-- add Item Form -->
+      <div class="col-md-6">
+        <h3>Add Items</h3>
+        <div class="form-box">
+          <div class="form-group">
+            <label for="item-name">Item Name:</label>
+            <input type="text" class="form-control" id="item-name" name="itemName" required>
+          </div>
+          <div class="form-group">
+            <label for="item-price">Item Price:</label>
+            <input type="number" step="0.01" class="form-control" id="item-price" name="itemPrice" required>
+          </div>
+          <button type="button" class="btn btn-default" id="add-item-button">Add Item</button>
+          <div class="form-group">
+            <h4>Items List</h4>
+            <ul id="items-list" class="list-group">
+              <!-- Items will be dynamically added here -->
+            </ul>
+          </div>
         </div>
-        <div class="form-group">
-          <label for="startTimeInput">Start</label>
-          <input id="startTimeInput" type="time" class="form-control"
-                 name="start" required="">
-        </div>
-        <div class="form-group">
-          <label for="endTimeInput">End</label>
-          <input id="endTimeInput" type="time" class="form-control"
-                 name="end" required="">
-        </div>
-        <div class="form-group">
-          <label for="phoneInput">Phone</label>
-          <input id="phoneInput" type="text" class="form-control" name="phone"
-                 required="">
-        </div>
-        <div class="form-group">
-          <label for="locationInput">Location</label>
-          <input type="text" class="form-control" name="location"
-                 id="locationInput" required="" value="">
-        </div>
-        <div class="form-group">
-          <label for="extraInput">Extra Info</label>
-          <input id="extraInput" type="text" class="form-control" name="info"
-                 required="">
-        </div>
-        <div class="form-group">
-          <label for="urlInput">Enter URL for the Extra Info</label>
-          <input id="urlInput" type="url" class="form-control" name="url"
-                 required="">
-        </div>
-        <button type="submit" class="btn btn-block btn-primary">Submit</button>
-        <button type="button" onclick="checkOverlap()" data-toggle="tooltip"
-                data-placement="top" class="btn btn-block btn-secondary"
-                title=
-                      "Checks if this event interferes with any on your existing schedule"
-        >Check for Overlap</button>
-        <div class="container mt-3" id="overlapAlert"></div>
-      </form>
+      </div>
     </div>
+  </div>
+  
     <script>
-      function logout(){
-        fetch('/api/logout', {
-          method: 'POST',
+      let items = [];
+      let total_amount = 0.0;
+      let item_idx = 0
+      $(document).ready(function() {
+        // Handle adding items to the list
+        $('#add-item-button').on('click', function() {
+          const itemName = $('#item-name').val();
+          const itemPrice = $('#item-price').val();
+  
+          if (itemName && itemPrice) {
+            const item = {
+              name: itemName,
+              price: itemPrice,
+              index: item_idx
+            };
+           
+            total_amount += parseFloat(itemPrice);
+            $('#total-amount').val(total_amount);
+            items.push(item);
+            $('#items-list').append(`<li id="item${item_idx}" data-value="${itemPrice}" class="list-group-item">${itemName} - $${itemPrice}
+              <button id="delete-btn${item_idx}" type="button" class="btn btn-danger btn-xs" onclick="deleteItem(${item_idx})">
+                Delete
+              </button>
+            </li>`);
+            item_idx += 1;
+            // Clear item input fields
+            $('#item-name').val('');
+            $('#item-price').val('');
+          } else {
+            alert('Please enter both item name and price.');
+          }
+        });
+      });
+      
+      function logout() {
+        fetch("/api/logout", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json'
+            "Content-Type": "application/json",
           },
         })
-        .then(res => {
-          if(res.ok) {
-            // Redirect to the login page
-            window.location.href = '/static/html/login';
-          } else {
-            console.log("couldn't log out")
-          }
-        })
-        .catch(error => {
-          console.error('logout error: ', error);
+          .then((res) => {
+            if (res.ok) {
+              // Redirect to the login page
+              window.location.href = "/login";
+            } else {
+              console.log("couldn't log out");
+            }
+          })
+          .catch((error) => {
+            console.error("logout error: ", error);
+          });
+      }
+      function deleteItem(id){
+        // delete items from DOM and update total_amount
+        total_amount -=  parseFloat($('#item'+id).data().value);
+        $('#item'+id).remove();
+        $('#total-amount').val(total_amount);
+      }
+      const receiptForm =  document.getElementById('addReceiptForm');
+      receiptForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const formData = new FormData(receiptForm);
+        payload = {}
+        console.log([...formData]);
+        formData.forEach((value, key) => {
+          payload[key] = value;
         });
-       }
-     let form = document.getElementById("addEvent");
-     function createAlert(count, events) {
-       let listItems = events.map((event) =>
-         `<li class="list-group-item">${event.name} from ${event.start} to ${event.end}`)
-                             .join('');
-       let newHtml = `
-         <div class="alert alert-warning" role="alert" >
-           This event interferes with ${count} others:
-           <ul class="list-group">
-             ${listItems}
-           </ul>
-         </div>
-       `;
-       $('#overlapAlert').html(newHtml);
-
-     }
-
-     function removeAlert() {
-       let newHtml = `
-         <div class="alert alert-success" role="alert">
-           This event does not interfere with any others.
-         </div>`;
-       $('#overlapAlert').html(newHtml);
-     }
-     //TODO: if doing the bonus, complete checking for overlap
-     function checkOverlap() {
-       return;
-     }
-     form.addEventListener('submit', function(e){
-      e.preventDefault();
-      const formData = new FormData(form);
-      const value = Object.fromEntries(formData.entries());
-      console.log({ value });
-      fetch('/postEventEntry', {
+        payload['items'] = items
+        console.log(payload);
+        fetch('/api/receiptEntry', {
           method: "POST",
-          body: JSON.stringify(value),
-          headers: {'content-Type': 'application/json'}
+          headers: {
+          "Content-Type": "application/json",
+          },
+          body: JSON.stringify(payload)
+        })
+          .then((res) => {
+            if (res.ok) {
+              return res.json();
+            } else {
+              window.alert("You must be part of a group to add a receipt!");
+              throw new Error('newtork response was not ok');
+            }
           })
-          .then(res => res.json())
-          .then(data => {
-              console.log(data.success + " " + data.message);
-              if(data.success){
-                window.location.replace("/static/html/schedule.html");
-              } else {
-                  console.log("error\n");
-              }
+          .then((data) => {
+            console.log("Recepit submission successful: ", data);
           })
-          .catch( err => console.log(err+ "hi\n"));
+          .catch((error) => {
+            console.log("receipt submission error");
+          })
       });
     </script>
   </body>

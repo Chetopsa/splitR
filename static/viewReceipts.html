@@ -81,9 +81,9 @@
           </button>
           <div class="collapse navbar-collapse" id="navbarNav">
               <ul class="navbar-nav">
-                  <!-- <li class="nav-item">
-                      <a class="nav-link" href="/addReceipt.html">Add Receipt</a>
-                  </li> -->
+                  <li class="nav-item">
+                      <a class="nav-link" href="/addReceipt">Add Receipt</a>
+                  </li>
                   <li class="nav-item">
                     <a class="nav-link" href="/manageGroups">Manage Groups</a>
                   </li>
@@ -115,12 +115,23 @@
                 <ul id="items-list" class="list-group">
                 <!-- Items will be dynamically added here -->
                 </ul>
+                <div class="form-group">
+                    <label for="userSelect"> Select User:</label>
+                    <select id="userSelect" class="form-control">
+                        <!-- user options will be loaded here -->
+                    </select>
+                </div>
+                <button class="btn btn-primary mt-3" onclick="assignItemsToUser()">
+                    Assign Items to User
+                </button>
             </div>
         </div>
     </div>
 </div>
 
     <script>
+        // global var for the current item list displayed
+        let cur_items = [];
         function selectGroup(id) {
             // front end change highlite
             console.log(`${id}`);
@@ -128,18 +139,48 @@
             $(`#${id}`).addClass('active-group');
         }
         function showItemList(items, id) {
+            //update glbal current items
+            cur_items = items;
             selectGroup(id);
             const itemsList = $('#items-list');
-            let jsonItems = items;
-            console.log(jsonItems);
-            console.log(items);
-            itemsList.empty();
-            items.forEach(item => {
-                itemsList.append(`
-                    <li class="list-group-item">
-                        ${item.item_name}: $${item.item_price}
-                    </li>
-                `);
+            const selectedUser = $('#userSelect').val();
+
+            fetch(`/api/getAssignedItems?userId=${selectedUser}`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    throw Error('error fetching assigned items');
+                }
+            })
+            .then((data) => {
+                const assignedItems = data.assignedItems;
+                console.log(assignedItems);
+                itemsList.empty();
+                let isChecked;
+                items.forEach(item => {
+                    if (assignedItems.length != 0) {
+                        // if item is present with user then mark checked
+                        isChecked = assignedItems.includes(item.item_id) ? 'checked' : ''; 
+                    } else {
+                        isChecked = '';
+                    }
+                    itemsList.append(`
+                        <li class="list-group-item">
+                            <input type="checkbox" id="item-${item.item_id}" class="item-checkbox" value="${item.item_id}" ${isChecked}>
+                                ${item.item_name}: $${item.item_price}
+                            </input>
+                        </li>
+                    `);
+                });
+            })
+            .catch( error => {
+                console.error('Error:', error);
             });
         }
         function logout() {
@@ -161,7 +202,9 @@
                 console.error("logout error: ", error);
               });
           }
+        
         $(document).ready(function() {
+            // Populate receipts
             fetch('/api/populateReceipts', {
                 method:'GET',
                 headers: {
@@ -195,12 +238,81 @@
                         list.append(receiptItem);
                     });
                 }
-                
             })
             .catch ((error) => {
                 console.log(error);
             });
+            // Fetch and populate the user select dropdown
+            fetch("/api/getUsers", {
+                method: "GET",
+                headers: {
+                "Content-Type": "application/json"
+                },
+            })
+            .then((res) => {
+                if (res.ok) {
+                    return res.json();
+                } else {
+                    throw Error("error fetching users");
+                }
+            })
+            .then((data) => {
+                const userSelect = $("#userSelect");
+                data.data.forEach((user) => {
+                    userSelect.append(`
+                    <option value="${user.id}">${user.name}</option>
+                    `);
+                });
+            })
+            .catch((error) => {
+                console.log(error);
+            });
+            // update the check boxes when user is changed
+            $("#userSelect").change(function() {
+                const id = $('.active-group').get(0).id;
+                console.log(id);
+                showItemList(cur_items, id);
+                
+            });
         });
+        function assignItemsToUser() {
+            const selectedUser = $("#userSelect").val();
+            const selectedItems = [];
+            const deselectedItems = [];
+            $(".item-checkbox").each(function () {
+                if ($(this).is(':checked')) {
+                    selectedItems.push($(this).val());
+                } else {
+                    deselectedItems.push($(this).val());
+                }
+                
+            });
+            if (selectedUser) {
+                fetch("api/assignItemsToUser", {
+                    method: "Post",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        user_id: selectedUser, 
+                        selected_Items: selectedItems,
+                        deselected_Items: deselectedItems,
+                    }),
+                })
+                .then((res) => {
+                    if (res.ok) {
+                        console.log("items asigned to user successfully");
+                    } else {
+                        console.log("user assignment to items was not successful");
+                    }
+                })
+                .catch((error) => {
+                    console.error("Error:", error);
+                });
+            } else {
+                alert("Please select a user and at least one item.");
+            }
+        }
     </script>
   </body>
 </html>
