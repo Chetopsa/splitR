@@ -1,5 +1,5 @@
-// YOU CAN USE THIS FILE AS REFERENCE FOR SERVER DEVELOPMENT
-
+// include env
+require('dotenv').config();
 // include the express modules
 var express = require("express");
 const path = require('path');
@@ -19,8 +19,13 @@ var session = require('express-session');
 
 // include the postgresql module
 const { Pool } = require('pg');
-const dbConfig = require('./config.js');
-const pool = new Pool(dbConfig);
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
 // Bcrypt library for comparing password hashes
 const bcrypt = require('bcrypt');
@@ -90,8 +95,10 @@ async function updateUsers_receipts (req, res) {
       client.release();
   }
 }
+const PORT = process.env.PORT || 3000;
+
 // server listens on port 9007 for incoming connections
-app.listen(9007, () => console.log('Listening on port 9007!'));
+app.listen(PORT, () => console.log('Listening on port: ' + PORT));
 
 //handle new users
 app.post('/api/accountForm', async (req, res) => {
